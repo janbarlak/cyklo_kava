@@ -10,10 +10,10 @@
 <style>
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-align: center;
     background: #f4f4f9;
     margin: 0;
     padding: 20px;
-    text-align: center;
     color: #333;
 }
 
@@ -26,12 +26,16 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
+h1 {
+    color: #4a3728;
+}
+
 .btn {
     background: #8B5A2B;
     color: white;
+    padding: 15px;
     border: none;
     border-radius: 30px;
-    padding: 15px;
     width: 100%;
     font-size: 16px;
     font-weight: bold;
@@ -49,16 +53,18 @@ body {
 
 .link-btn {
     display: inline-block;
-    margin-top: 10px;
-    padding: 10px 16px;
+    padding: 10px 14px;
+    margin-right: 8px;
+    margin-top: 8px;
     background: #8B5A2B;
     color: white;
     text-decoration: none;
     border-radius: 20px;
+    font-size: 14px;
 }
 
-h3 {
-    margin: 0 0 8px 0;
+.status {
+    margin-top: 20px;
 }
 </style>
 </head>
@@ -67,15 +73,15 @@ h3 {
 
 <div class="container">
 
-    <h1>☕ Cyklo Káva</h1>
+<h1>☕ Cyklo Káva</h1>
 
-    <p>Nájdi 3 najbližšie kaviarne</p>
+<p>Nájdi 3 najbližšie kaviarne</p>
 
-    <button class="btn" onclick="najdiKavu()">
-        Vyhľadať v okolí
-    </button>
+<button class="btn" onclick="najdiKavu()">
+Vyhľadať v okolí
+</button>
 
-    <div id="vysledky"></div>
+<div id="vysledky" class="status"></div>
 
 </div>
 
@@ -99,7 +105,10 @@ function vzdialenost(lat1, lon1, lat2, lon2) {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const c = 2 * Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+    );
 
     return Math.round(R * c);
 }
@@ -141,8 +150,11 @@ out;
 
                 if (!data.elements || data.elements.length === 0) {
 
-                    vysledky.innerHTML =
-                        "<div class='kaviaren-box'>☹️ V okruhu 1 km nebola nájdená žiadna kaviareň.</div>";
+                    vysledky.innerHTML = `
+                        <div class="kaviaren-box">
+                            ☹️ V okruhu 1 km nebola nájdená žiadna kaviareň.
+                        </div>
+                    `;
 
                     return;
                 }
@@ -163,32 +175,48 @@ out;
 
                 });
 
-                cafes.sort((a,b) => a.distance - b.distance);
+                cafes.sort((a, b) => a.distance - b.distance);
 
-                const top3 = cafes.slice(0,3);
+                const top3 = cafes.slice(0, 3);
 
                 vysledky.innerHTML = "";
 
                 top3.forEach(cafe => {
 
-                    const mapsUrl =
-                        `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
+                    const googleMapsUrl =
+                        `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lon}`;
+
+                    const appleMapsUrl =
+                        `http://maps.apple.com/?daddr=${cafe.lat},${cafe.lon}`;
 
                     vysledky.innerHTML += `
                         <div class="kaviaren-box">
                             <h3>☕ ${cafe.name}</h3>
+
                             <p>📍 ${cafe.distance} m</p>
-                            <a class="            Navigovať
+
+                            <a
+                                           </a>
+
+                            <a
+ppleMapsUrl}
+                                🍎 Apple Maps
                             </a>
                         </div>
                     `;
 
                 });
 
-            } catch(error) {
+            }
+            catch(error) {
 
-                vysledky.innerHTML =
-                    "<div class='kaviaren-box'>❌ Chyba pri načítaní kaviarní.</div>";
+                vysledky.innerHTML = `
+                    <div class="kaviaren-box">
+                        ❌ Chyba pri načítaní kaviarní
+                        <br><br>
+                        ${error}
+                    </div>
+                `;
 
             }
 
@@ -196,8 +224,13 @@ out;
 
         function(error) {
 
-            vysledky.innerHTML =
-                "<div class='kaviaren-box'>❌ " + error.message + "</div>";
+            vysledky.innerHTML = `
+                <div class="kaviaren-box">
+                    ❌ GPS chyba
+                    <br><br>
+                    ${error.message}
+                </div>
+            `;
 
         }
 

@@ -129,6 +129,10 @@ function otvorMapu(lat,lon){
     window.open(url,"_blank");
 }
 
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function hladaj(){
 
     const vysledky = document.getElementById("vysledky");
@@ -157,13 +161,8 @@ async function hladaj(){
 
                 let amenity = "cafe";
 
-                if (typ === "fuel") {
-                    amenity = "fuel";
-                }
-
-                if (typ === "drinking_water") {
-                    amenity = "drinking_water";
-                }
+                if (typ === "fuel") amenity = "fuel";
+                if (typ === "drinking_water") amenity = "drinking_water";
 
                 let query = "";
 
@@ -188,15 +187,40 @@ out center;
 );
 out center;
 `;
+
                 }
 
-                const response = await fetch(
-                    "https://overpass-api.de/api/interpreter",
-                    {
-                        method:"POST",
-                        body:query
-                    }
-                );
+                let response;
+
+                try {
+
+                    response = await fetch(
+                        "https://overpass-api.de/api/interpreter",
+                        {
+                            method:"POST",
+                            body:query
+                        }
+                    );
+
+                } catch(firstError) {
+
+                    vysledky.innerHTML =
+                        "<div class='kaviaren-box'>🔄 Opakujem načítanie...</div>";
+
+                    await sleep(2000);
+
+                    response = await fetch(
+                        "https://overpass-api.de/api/interpreter",
+                        {
+                            method:"POST",
+                            body:query
+                        }
+                    );
+                }
+
+                if (!response.ok) {
+                    throw new Error("Overpass API neodpovedalo");
+                }
 
                 const data = await response.json();
 
@@ -275,7 +299,7 @@ out center;
             catch(error){
 
                 vysledky.innerHTML =
-                    "<div class='kaviaren-box'>❌ Chyba pri načítaní dát.</div>";
+                    "<div class='kaviaren-box'>❌ Nepodarilo sa načítať dáta. Skús znova o chvíľu.</div>";
 
             }
 

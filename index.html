@@ -47,12 +47,12 @@ function najdiKavu() {
       const googleMapsUrl =
         `https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
 
+      window.open(googleMapsUrl, "_blank");
+
       vysledkyDiv.innerHTML = `
         <div class="kaviaren-box">
           <h3>Kaviarne v okolí ☕</h3>
-          <p>Poloha úspešne získaná.</p>
-          <a href="${googleMapsUrl}" target="_blankogle Maps
-          </a>
+          <p>Google Maps boli otvorené.</p>
         </div>
       `;
 

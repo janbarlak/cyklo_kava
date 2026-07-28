@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyklo Káva</title>
+<title>Cyklo Káva1</title>
 
 <link rel="manifest" href="manifest.json">
 
@@ -102,8 +102,7 @@ function vzdialenost(lat1, lon1, lat2, lon2) {
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(lat1 * Math.PI / 180) *
         Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(
         Math.sqrt(a),
@@ -183,7 +182,7 @@ out;
                         `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
 
                     const appleMapsUrl =
-                        `http://maps.apple.com/?daddr=${cafe.lat},${cafe.lon}`;
+                        `https://maps.apple.com/?daddr=${cafe.lat},${cafe.lon}`;
 
                     vysledky.innerHTML += `
                         <div class="kaviaren-box">
@@ -192,9 +191,10 @@ out;
 
                             <p>📍 ${cafe.distance} m</p>
 
-                            <a class="link-btn"
-                               href="${googleMapsUrla class="link-btn"
-                              Apple Maps
+                            <a class="                   🗺️ Google Maps
+                            </a>
+
+                            <a class="link-btn" href                        🍎 Apple Maps
                             </a>
 
                         </div>
@@ -202,8 +202,7 @@ out;
 
                 });
 
-            }
-            catch(error) {
+            } catch(error) {
 
                 vysledky.innerHTML = `
                     <div class="kaviaren-box">
@@ -230,7 +229,6 @@ out;
         }
 
     );
-
 }
 
 </script>

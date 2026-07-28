@@ -73,15 +73,15 @@ h1 {
 
 <div class="container">
 
-<h1>☕ Cyklo Káva</h1>
+    <h1>☕ Cyklo Káva</h1>
 
-<p>Nájdi 3 najbližšie kaviarne</p>
+    <p>Nájdi 3 najbližšie kaviarne</p>
 
-<button class="btn" onclick="najdiKavu()">
-Vyhľadať v okolí
-</button>
+    <button class="btn" onclick="najdiKavu()">
+        Vyhľadať v okolí
+    </button>
 
-<div id="vysledky" class="status"></div>
+    <div id="vysledky" class="status"></div>
 
 </div>
 
@@ -191,17 +191,18 @@ out;
 
                     vysledky.innerHTML += `
                         <div class="kaviaren-box">
+
                             <h3>☕ ${cafe.name}</h3>
 
                             <p>📍 ${cafe.distance} m</p>
 
-                            <a
-                                           </a>
+                            <a class="link-btn" href="${googleMapsUrlaps
+                            </a>
 
-                            <a
-ppleMapsUrl}
+                            ${appleMapsUrl}
                                 🍎 Apple Maps
                             </a>
+
                         </div>
                     `;
 

@@ -8,13 +8,10 @@
 
 <link rel="manifest" href="manifest.json">
 
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Cyklo Finder">
 
-
-<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -33,6 +30,15 @@ body{
     box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
 
+select{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    font-size:16px;
+}
+
 .btn{
     background:#8B5A2B;
     color:white;
@@ -43,15 +49,6 @@ body{
     font-size:16px;
     font-weight:bold;
     cursor:pointer;
-}
-
-select{
-    width:100%;
-    padding:12px;
-    margin-bottom:15px;
-    border-radius:12px;
-    border:1px solid #ddd;
-    font-size:16px;
 }
 
 .kaviaren-box{
@@ -79,14 +76,13 @@ select{
 
 <div class="container">
 
-<h1>🚴 Cyklo Finder</h1>
-
-<p></p>
+<h1>🚴 CykloFinder</h1>
 
 <select id="typ">
     <option value="cafe">☕ Kaviareň</option>
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
+    <option value="supermarket">🛒 Potraviny</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -111,12 +107,16 @@ function vzdialenost(lat1, lon1, lat2, lon2){
     const dLon = (lon2-lon1) * Math.PI/180;
 
     const a =
-        Math.sin(dLat/2)*Math.sin(dLat/2) +
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.cos(lat1*Math.PI/180) *
         Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2)*Math.sin(dLon/2);
+        Math.sin(dLon/2) *
+        Math.sin(dLon/2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+    const c = 2 * Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1-a)
+    );
 
     return Math.round(R*c);
 }
@@ -138,6 +138,7 @@ async function hladaj(){
 
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
+    if (typ === "supermarket") radius = 10000;
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -154,41 +155,39 @@ async function hladaj(){
 
             try{
 
+                let amenity = "cafe";
+
+                if (typ === "fuel") {
+                    amenity = "fuel";
+                }
+
+                if (typ === "drinking_water") {
+                    amenity = "drinking_water";
+                }
+
                 let query = "";
 
-                if (typ === "cafe") {
+                if (typ === "supermarket") {
 
                     query = `
 [out:json];
 (
-  node["amenity"="cafe"](around:${radius},${lat},${lon});
-  way["amenity"="cafe"](around:${radius},${lat},${lon});
+  node["shop"="supermarket"](around:${radius},${lat},${lon});
+  way["shop"="supermarket"](around:${radius},${lat},${lon});
 );
 out center;
 `;
 
-                } else if (typ === "fuel") {
+                } else {
 
                     query = `
 [out:json];
 (
-  node["amenity"="fuel"](around:${radius},${lat},${lon});
-  way["amenity"="fuel"](around:${radius},${lat},${lon});
+  node["amenity"="${amenity}"](around:${radius},${lat},${lon});
+  way["amenity"="${amenity}"](around:${radius},${lat},${lon});
 );
 out center;
 `;
-
-                } else if (typ === "drinking_water") {
-
-                    query = `
-[out:json];
-(
-  node["amenity"="drinking_water"](around:${radius},${lat},${lon});
-  way["amenity"="drinking_water"](around:${radius},${lat},${lon});
-);
-out center;
-`;
-
                 }
 
                 const response = await fetch(
@@ -201,18 +200,23 @@ out center;
 
                 const data = await response.json();
 
-                if(!data.elements || data.elements.length === 0){
+                if (!data.elements || data.elements.length === 0){
 
                     vysledky.innerHTML =
-                        "<div class='kaviaren-box'>Neboli nájdené žiadne výsledky.</div>";
+                        "<div class='kaviaren-box'>Nenašli sa žiadne výsledky.</div>";
 
                     return;
                 }
 
-                const body = data.elements.map(item => {
+                const body = data.elements
+                .map(item => {
 
                     const itemLat = item.lat || item.center?.lat;
                     const itemLon = item.lon || item.center?.lon;
+
+                    if (!itemLat || !itemLon) {
+                        return null;
+                    }
 
                     return {
 
@@ -222,10 +226,11 @@ out center;
                                 ? "⛽ Benzínka"
                                 : typ === "drinking_water"
                                 ? "🚰 Pitná voda"
+                                : typ === "supermarket"
+                                ? "🛒 Potraviny"
                                 : "☕ Kaviareň"),
 
                         lat: itemLat,
-
                         lon: itemLon,
 
                         distance: vzdialenost(
@@ -237,9 +242,10 @@ out center;
 
                     };
 
-                });
+                })
+                .filter(item => item !== null);
 
-                body.sort((a,b)=>a.distance-b.distance);
+                body.sort((a,b) => a.distance - b.distance);
 
                 const top5 = body.slice(0,5);
 
@@ -278,7 +284,7 @@ out center;
         function(error){
 
             vysledky.innerHTML =
-                "<div class='kaviaren-box'>❌ "+error.message+"</div>";
+                "<div class='kaviaren-box'>❌ " + error.message + "</div>";
 
         }
 

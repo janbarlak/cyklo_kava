@@ -13,6 +13,7 @@ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 background:#f4f4f9;
 padding:20px;
 text-align:center;
+margin:0;
 }
 
 .container{
@@ -33,24 +34,30 @@ width:100%;
 border-radius:30px;
 font-size:16px;
 font-weight:bold;
+cursor:pointer;
 }
 
 .kaviaren-box{
 background:#fdfaf7;
-margin-top:20px;
+margin-top:15px;
 padding:15px;
 border-radius:12px;
 border-left:5px solid #8B5A2B;
+text-align:left;
 }
 
 .link-btn{
 display:inline-block;
 margin-top:10px;
-padding:12px 20px;
+padding:10px 15px;
 background:#8B5A2B;
 color:white;
 text-decoration:none;
 border-radius:20px;
+}
+
+h3{
+margin:0 0 10px 0;
 }
 </style>
 </head>
@@ -61,7 +68,7 @@ border-radius:20px;
 
 <h1>☕ Cyklo Káva</h1>
 
-<p>Nájdi kaviarne vo svojom okolí</p>
+<p>Nájdi 3 najbližšie kaviarne</p>
 
 <button class="btn" onclick="najdiKavu()">
 Vyhľadať v okolí
@@ -74,49 +81,122 @@ Vyhľadať v okolí
 <script>
 
 if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.register('sw.js');
 }
 
-function najdiKavu() {
+function vzdialenost(lat1, lon1, lat2, lon2) {
 
-const vysledkyDiv = document.getElementById("vysledky");
+  const R = 6371;
 
-vysledkyDiv.innerHTML = "<p>Zisťujem vašu polohu...</p>";
+  const dLat = (lat2-lat1) * Math.PI / 180;
+  const dLon = (lon2-lon1) * Math.PI / 180;
 
-navigator.geolocation.getCurrentPosition(
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2) *
+    Math.sin(dLon/2);
 
-function(position){
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-const lat = position.coords.latitude;
-const lon = position.coords.longitude;
-
-const mapsUrl =
-`https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
-
-vysledkyDiv.innerHTML = `
-<div class="kaviaren-box">
-<h3>Kaviarne v okolí ☕</h3>
-<p>Poloha úspešne získaná.</p>
-
-<a class="link-btn" hrefe Maps
-</a>
-</div>
-`;
-
-},
-
-function(error){
-
-vysledkyDiv.innerHTML = `
-<div class="kaviaren-box">
-<h3>GPS chyba</h3>
-<p>${error.message}</p>
-</div>
-`;
-
+  return Math.round(R * c * 1000);
 }
 
+async function najdiKavu() {
+
+  const vysledkyDiv = document.getElementById("vysledky");
+
+  vysledkyDiv.innerHTML =
+    "<p>Zisťujem vašu polohu...</p>";
+
+  navigator.geolocation.getCurrentPosition(
+
+    async function(position){
+
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      vysledkyDiv.innerHTML =
+        "<p>Hľadám kaviarne...</p>";
+
+      const query = `
+[out:json];
+(
+ node["amenity"="cafe"](around:1000,${lat},${lon});
+ way["amenity"="cafe"](around:1000,${lat},${lon});
+ relation["amenity"="cafe"](around:1000,${lat},${lon});
 );
+out center;
+`;
+
+      try {
+
+        const response = await fetch(
+          "https://overpass-api.de/api/interpreter",
+          {
+            method: "POST",
+            body: query
+          }
+        );
+
+        const data = await response.json();
+
+        if(!data.elements.length){
+          vysledkyDiv.innerHTML =
+            "<p>Nenašli sa žiadne kaviarne v okruhu 1 km.</p>";
+          return;
+        }
+
+        const cafes = data.elements.map(cafe => {
+
+          const cafeLat = cafe.lat || cafe.center?.lat;
+          const cafeLon = cafe.lon || cafe.center?.lon;
+
+          return {
+            name: cafe.tags?.name || "Neznáma kaviareň",
+            lat: cafeLat,
+            lon: cafeLon,
+            distance: vzdialenost(
+              lat,
+              lon,
+              cafeLat,
+              cafeLon
+            )
+          };
+
+        });
+
+        cafes.sort((a,b) => a.distance - b.distance);
+
+        const top3 = cafes.slice(0,3);
+
+        vysledkyDiv.innerHTML = "";
+
+        top3.forEach(cafe => {
+
+          const mapsUrl =
+            `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
+
+          vysledkyDiv.innerHTML += `
+            <div class="kaviaren-box">
+              <h3>☕ ${cafe.name}</h3>
+              <p>📍 ${cafe.distance} m</p>
+              <a class="link-btn" href="${mapsUrl}" targetdkyDiv.innerHTML =
+          "<p>Chyba pri načítaní kaviarní.</p>";
+
+      }
+
+    },
+
+    function(error){
+
+      vysledkyDiv.innerHTML =
+        `<p>${error.message}</p>`;
+
+    }
+
+  );
 
 }
 

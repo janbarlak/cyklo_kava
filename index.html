@@ -159,21 +159,17 @@ out;
                     return;
                 }
 
-                const cafes = data.elements.map(cafe => {
-
-                    return {
-                        name: cafe.tags?.name || "Neznáma kaviareň",
-                        lat: cafe.lat,
-                        lon: cafe.lon,
-                        distance: vzdialenost(
-                            lat,
-                            lon,
-                            cafe.lat,
-                            cafe.lon
-                        )
-                    };
-
-                });
+                const cafes = data.elements.map(cafe => ({
+                    name: cafe.tags?.name || "Neznáma kaviareň",
+                    lat: cafe.lat,
+                    lon: cafe.lon,
+                    distance: vzdialenost(
+                        lat,
+                        lon,
+                        cafe.lat,
+                        cafe.lon
+                    )
+                }));
 
                 cafes.sort((a, b) => a.distance - b.distance);
 
@@ -184,7 +180,7 @@ out;
                 top3.forEach(cafe => {
 
                     const googleMapsUrl =
-                        `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lon}`;
+                        `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
 
                     const appleMapsUrl =
                         `http://maps.apple.com/?daddr=${cafe.lat},${cafe.lon}`;
@@ -196,11 +192,9 @@ out;
 
                             <p>📍 ${cafe.distance} m</p>
 
-                            <a class="link-btn" href="${googleMapsUrlaps
-                            </a>
-
-                            ${appleMapsUrl}
-                                🍎 Apple Maps
+                            <a class="link-btn"
+                               href="${googleMapsUrla class="link-btn"
+                              Apple Maps
                             </a>
 
                         </div>
@@ -215,7 +209,7 @@ out;
                     <div class="kaviaren-box">
                         ❌ Chyba pri načítaní kaviarní
                         <br><br>
-                        ${error}
+                        ${error.message}
                     </div>
                 `;
 

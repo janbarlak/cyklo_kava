@@ -29,44 +29,43 @@
   </div>
 
 <script>
-  // Registrácia PWA Service Workera
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 
-  function najdiKavu() {
-    const vysledkyDiv = document.getElementById("vysledky");
-    vysledkyDiv.innerHTML = "<p>Zisťujem vašu polohu...</p>";
+function najdiKavu() {
+  const vysledkyDiv = document.getElementById("vysledky");
 
-    if (!navigator.geolocation) {
-      vysledkyDiv.innerHTML = "<p>GPS nie je podporované vaším prehliadačom.</p>";
-      return;
+  vysledkyDiv.innerHTML = "<p>Zisťujem vašu polohu...</p>";
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      vysledkyDiv.innerHTML = `
+        <div class="kaviaren-box">
+          <h3>Poloha získaná ✅</h3>
+          <p>Lat: ${lat}</p>
+          <p>Lon: ${lon}</p>
+        </div>
+      `;
+
+    },
+    function(error) {
+
+      vysledkyDiv.innerHTML = `
+        <div class="kaviaren-box">
+          <h3>GPS chyba ❌</h3>
+          <p>Kód: ${error.code}</p>
+          <p>Správa: ${error.message}</p>
+        </div>
+      `;
+
     }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
-        const googleMapsUrl =
-          `https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
-
-        vysledkyDiv.innerHTML = `
-          <div class="kaviaren-box">
-            <h3>Kaviarne v okolí</h3>
-            <p>Otvor Google Maps s kaviarňami vo svojom okolí.</p>
-            <a href="${sUrl}
-              ☕ Otvoriť kaviarne v Google Maps
-            </a>
-          </div>
-        `;
-      },
-      (error) => {
-        vysledkyDiv.innerHTML =
-          "<p style='color:red;'>Nepodarilo sa získať GPS polohu.</p>";
-      }
-    );
-  }
+  );
+}
 </script>
 </body>
 </html>

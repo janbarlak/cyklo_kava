@@ -4,59 +4,112 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cyklo Káva</title>
+
   <link rel="manifest" href="manifest.json">
+
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #f4f4f9; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    h1 { font-size: 24px; margin-bottom: 5px; color: #4a3728; }
-    p { color: #666; font-size: 14px; margin-bottom: 25px; }
-    .btn { background: #8B5A2B; color: white; padding: 15px 30px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(139,90,43,0.2); transition: 0.2s; }
-    .btn:active { transform: scale(0.98); }
-    .kaviaren-box { background: #fdfaf7; margin-top: 20px; padding: 15px; border-radius: 12px; border-left: 5px solid #8B5A2B; text-align: left; }
-    .kaviaren-box h3 { margin: 0 0 5px 0; font-size: 18px; }
-    .link-btn { display: inline-block; margin-top: 8px; color: #8B5A2B; font-weight: bold; text-decoration: none; font-size: 14px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+      color: #4a3728;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      background: #8B5A2B;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .kaviaren-box {
+      background: #fdfaf7;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      border-left: 5px solid #8B5A2B;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>☕ Cyklo Káva</h1>
-    <p>Nájdi top kaviarne v Google Maps do 1 km</p>
-    
-    <button class="btn" onclick="najdiKavu()">Vyhľadať v okolí</button>
-    
-    <div id="vysledky"></div>
-  </div>
+<div class="container">
+
+  <h1>☕ Cyklo Káva</h1>
+
+  <p>Nájdi kaviarne vo svojom okolí</p>
+
+  <button class="btn" onclick="najdiKavu()">
+    Vyhľadať v okolí
+  </button>
+
+  <div id="vysledky"></div>
+
+</div>
 
 <script>
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
 function najdiKavu() {
-  const vysledkyDiv = document.getElementById("vysledky");
 
-  vysledkyDiv.innerHTML = "<p>Zisťujem vašu polohu...</p>";
+  const vysledkyDiv = document.getElementById('vysledky');
+
+  vysledkyDiv.innerHTML =
+    '<p>Zisťujem vašu polohu...</p>';
 
   navigator.geolocation.getCurrentPosition(
+
     function(position) {
-
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      const googleMapsUrl =
-        `https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
-
-      window.open(googleMapsUrl, "_blank");
 
       vysledkyDiv.innerHTML = `
         <div class="kaviaren-box">
           <h3>Kaviarne v okolí ☕</h3>
-          <p>Google Maps boli otvorené.</p>
+          <p>Poloha úspešne získaná.</p>
+          <p>Otváram Google Maps...</p>
         </div>
       `;
 
+      setTimeout(function() {
+
+        window.location.href =
+          'https://www.google.com/maps/search/coffee';
+
+      }, 500);
+
     },
+
     function(error) {
 
       vysledkyDiv.innerHTML = `
@@ -67,8 +120,12 @@ function najdiKavu() {
       `;
 
     }
+
   );
+
 }
+
 </script>
+
 </body>
 </html>

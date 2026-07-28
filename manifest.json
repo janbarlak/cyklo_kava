@@ -1,0 +1,8 @@
+{
+  "name": "Cyklo Káva App",
+  "short_name": "CykloKáva",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#8B5A2B"
+}

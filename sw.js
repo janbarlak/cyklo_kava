@@ -1,15 +1,7 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('cyklo-kava-v1').then((cache) => {
-      return cache.addAll(['index.html', 'manifest.json']);
-    })
-  );
+self.addEventListener('install', () => {
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
-    })
-  );
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
 });

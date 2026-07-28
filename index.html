@@ -1,127 +1,122 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyklo Káva</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyklo Káva</title>
 
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center;
-      background: #f4f4f9;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
+<style>
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+background:#f4f4f9;
+padding:20px;
+text-align:center;
+}
 
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
 
-    h1 {
-      font-size: 24px;
-      margin-bottom: 5px;
-      color: #4a3728;
-    }
+.btn{
+background:#8B5A2B;
+color:white;
+border:none;
+padding:15px;
+width:100%;
+border-radius:30px;
+font-size:16px;
+font-weight:bold;
+}
 
-    p {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
+.kaviaren-box{
+background:#fdfaf7;
+margin-top:20px;
+padding:15px;
+border-radius:12px;
+border-left:5px solid #8B5A2B;
+}
 
-    .btn {
-      background: #8B5A2B;
-      color: white;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .kaviaren-box {
-      background: #fdfaf7;
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 12px;
-      border-left: 5px solid #8B5A2B;
-      text-align: left;
-    }
-  </style>
+.link-btn{
+display:inline-block;
+margin-top:10px;
+padding:12px 20px;
+background:#8B5A2B;
+color:white;
+text-decoration:none;
+border-radius:20px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
 
-  <h1>☕ Cyklo Káva</h1>
+<h1>☕ Cyklo Káva</h1>
 
-  <p>Nájdi kaviarne vo svojom okolí</p>
+<p>Nájdi kaviarne vo svojom okolí</p>
 
-  <button class="btn" onclick="najdiKavu()">
-    Vyhľadať v okolí
-  </button>
+<button class="btn" onclick="najdiKavu()">
+Vyhľadať v okolí
+</button>
 
-  <div id="vysledky"></div>
+<div id="vysledky"></div>
 
 </div>
 
 <script>
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+navigator.serviceWorker.register('sw.js');
 }
 
 function najdiKavu() {
 
-  const vysledkyDiv = document.getElementById('vysledky');
+const vysledkyDiv = document.getElementById("vysledky");
 
-  vysledkyDiv.innerHTML =
-    '<p>Zisťujem vašu polohu...</p>';
+vysledkyDiv.innerHTML = "<p>Zisťujem vašu polohu...</p>";
 
-  navigator.geolocation.getCurrentPosition(
+navigator.geolocation.getCurrentPosition(
 
-    function(position) {
+function(position){
 
-      vysledkyDiv.innerHTML = `
-        <div class="kaviaren-box">
-          <h3>Kaviarne v okolí ☕</h3>
-          <p>Poloha úspešne získaná.</p>
-          <p>Otváram Google Maps...</p>
-        </div>
-      `;
+const lat = position.coords.latitude;
+const lon = position.coords.longitude;
 
-      setTimeout(function() {
+const mapsUrl =
+`https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
 
-        window.location.href =
-          'https://www.google.com/maps/search/coffee';
+vysledkyDiv.innerHTML = `
+<div class="kaviaren-box">
+<h3>Kaviarne v okolí ☕</h3>
+<p>Poloha úspešne získaná.</p>
 
-      }, 500);
+<a class="link-btn" hrefe Maps
+</a>
+</div>
+`;
 
-    },
+},
 
-    function(error) {
+function(error){
 
-      vysledkyDiv.innerHTML = `
-        <div class="kaviaren-box">
-          <h3>GPS chyba ❌</h3>
-          <p>${error.message}</p>
-        </div>
-      `;
+vysledkyDiv.innerHTML = `
+<div class="kaviaren-box">
+<h3>GPS chyba</h3>
+<p>${error.message}</p>
+</div>
+`;
 
-    }
+}
 
-  );
+);
 
 }
 

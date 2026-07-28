@@ -58,9 +58,10 @@ h1 {
     margin-top: 8px;
     background: #8B5A2B;
     color: white;
-    text-decoration: none;
+    border: none;
     border-radius: 20px;
     font-size: 14px;
+    cursor: pointer;
 }
 
 .status {
@@ -73,15 +74,15 @@ h1 {
 
 <div class="container">
 
-    <h1>☕ Cyklo Káva1</h1>
+<h1>☕ Cyklo Káva</h1>
 
-    <p>Nájdi 3 najbližšie kaviarne</p>
+<p>Nájdi 3 najbližšie kaviarne</p>
 
-    <button class="btn" onclick="najdiKavu()">
-        Vyhľadať v okolí
-    </button>
+<button class="btn" onclick="najdiKavu()">
+Vyhľadať v okolí
+</button>
 
-    <div id="vysledky" class="status"></div>
+<div id="vysledky" class="status"></div>
 
 </div>
 
@@ -102,7 +103,8 @@ function vzdialenost(lat1, lon1, lat2, lon2) {
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(lat1 * Math.PI / 180) *
         Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(
         Math.sqrt(a),
@@ -179,7 +181,7 @@ out;
                 top3.forEach(cafe => {
 
                     const googleMapsUrl =
-                        `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
+                        `https://www.google.com/maps/dir/?api=1&destination=${cafe.lat},${cafe.lon}`;
 
                     const appleMapsUrl =
                         `https://maps.apple.com/?daddr=${cafe.lat},${cafe.lon}`;
@@ -191,11 +193,11 @@ out;
 
                             <p>📍 ${cafe.distance} m</p>
 
-                            <a class="                   🗺️ Google Maps
-                            </a>
-
-                            <a class="link-btn" href                        🍎 Apple Maps
-                            </a>
+                            <button
+                                class="link-btn"
+                                onclick="window.locationbutton
+                                class="link-btne Maps
+                            </button>
 
                         </div>
                     `;

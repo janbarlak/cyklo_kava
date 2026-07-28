@@ -8,56 +8,51 @@
 <link rel="manifest" href="manifest.json">
 
 <style>
-body{
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-background:#f4f4f9;
-padding:20px;
-text-align:center;
-margin:0;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f4f4f9;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
 }
 
-.container{
-max-width:500px;
-margin:auto;
-background:white;
-padding:30px;
-border-radius:20px;
-box-shadow:0 4px 15px rgba(0,0,0,0.05);
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.btn{
-background:#8B5A2B;
-color:white;
-border:none;
-padding:15px;
-width:100%;
-border-radius:30px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
+.btn {
+    background: #8B5A2B;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 15px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
 }
 
-.kaviaren-box{
-background:#fdfaf7;
-margin-top:15px;
-padding:15px;
-border-radius:12px;
-border-left:5px solid #8B5A2B;
-text-align:left;
+.kaviaren-box {
+    background: #fdfaf7;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 5px solid #8B5A2B;
+    text-align: left;
 }
 
-.link-btn{
-display:inline-block;
-margin-top:10px;
-padding:10px 15px;
-background:#8B5A2B;
-color:white;
-text-decoration:none;
-border-radius:20px;
-}
-
-h3{
-margin:0 0 10px 0;
+.link-btn {
+    display: inline-block;
+    margin-top: 10px;
+    background: #8B5A2B;
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 20px;
 }
 </style>
 </head>
@@ -81,126 +76,54 @@ Vyhľadať v okolí
 <script>
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
-function vzdialenost(lat1, lon1, lat2, lon2) {
-
-  const R = 6371;
-
-  const dLat = (lat2-lat1) * Math.PI / 180;
-  const dLon = (lon2-lon1) * Math.PI / 180;
-
-  const a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1*Math.PI/180) *
-    Math.cos(lat2*Math.PI/180) *
-    Math.sin(dLon/2) *
-    Math.sin(dLon/2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-  return Math.round(R * c * 1000);
+    navigator.serviceWorker.register('sw.js');
 }
 
 async function najdiKavu() {
 
-  const vysledkyDiv = document.getElementById("vysledky");
+    const vysledky = document.getElementById("vysledky");
 
-  vysledkyDiv.innerHTML =
-    "<p>Zisťujem vašu polohu...</p>";
+    vysledky.innerHTML =
+        "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
 
-  navigator.geolocation.getCurrentPosition(
+    navigator.geolocation.getCurrentPosition(
 
-    async function(position){
+        async function(position) {
 
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
 
-      vysledkyDiv.innerHTML =
-        "<p>Hľadám kaviarne...</p>";
+            vysledky.innerHTML =
+                "<div class='kaviaren-box'>✅ Poloha získaná<br>🔍 Hľadám kaviarne...</div>";
 
-      const query = `
+            try {
+
+                const query = `
 [out:json];
-(
- node["amenity"="cafe"](around:1000,${lat},${lon});
- way["amenity"="cafe"](around:1000,${lat},${lon});
- relation["amenity"="cafe"](around:1000,${lat},${lon});
-);
-out center;
+node["amenity"="cafe"](around:1000,${lat},${lon});
+out;
 `;
 
-      try {
+                const response = await fetch(
+                    "https://overpass-api.de/api/interpreter",
+                    {
+                        method: "POST",
+                        body: query
+                    }
+                );
 
-        const response = await fetch(
-          "https://overpass-api.de/api/interpreter",
-          {
-            method: "POST",
-            body: query
-          }
-        );
+                const data = await response.json();
 
-        const data = await response.json();
+                vysledky.innerHTML = `
+                    <div class="kaviaren-box">
+                        <h3>✅ Overpass odpovedal</h3>
+                        <p>Nájdených záznamov: ${data.elements.length}</p>
+                    </div>
+                `;
 
-        if(!data.elements.length){
-          vysledkyDiv.innerHTML =
-            "<p>Nenašli sa žiadne kaviarne v okruhu 1 km.</p>";
-          return;
-        }
+            } catch (error) {
 
-        const cafes = data.elements.map(cafe => {
-
-          const cafeLat = cafe.lat || cafe.center?.lat;
-          const cafeLon = cafe.lon || cafe.center?.lon;
-
-          return {
-            name: cafe.tags?.name || "Neznáma kaviareň",
-            lat: cafeLat,
-            lon: cafeLon,
-            distance: vzdialenost(
-              lat,
-              lon,
-              cafeLat,
-              cafeLon
-            )
-          };
-
-        });
-
-        cafes.sort((a,b) => a.distance - b.distance);
-
-        const top3 = cafes.slice(0,3);
-
-        vysledkyDiv.innerHTML = "";
-
-        top3.forEach(cafe => {
-
-          const mapsUrl =
-            `https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lon}`;
-
-          vysledkyDiv.innerHTML += `
-            <div class="kaviaren-box">
-              <h3>☕ ${cafe.name}</h3>
-              <p>📍 ${cafe.distance} m</p>
-              <a class="link-btn" href="${mapsUrl}" targetdkyDiv.innerHTML =
-          "<p>Chyba pri načítaní kaviarní.</p>";
-
-      }
-
-    },
-
-    function(error){
-
-      vysledkyDiv.innerHTML =
-        `<p>${error.message}</p>`;
-
-    }
-
-  );
-
-}
-
-</script>
-
-</body>
-</html>
+                vysledky.innerHTML = `
+                    <div class="kaviaren-box">
+                        <h3>❌ Chyba API</h3>
+                        <p>${error}</p>

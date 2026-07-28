@@ -44,11 +44,15 @@ function najdiKavu() {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
 
+      const googleMapsUrl =
+        `https://www.google.com/maps/search/coffee/@${lat},${lon},15z`;
+
       vysledkyDiv.innerHTML = `
         <div class="kaviaren-box">
-          <h3>Poloha získaná ✅</h3>
-          <p>Lat: ${lat}</p>
-          <p>Lon: ${lon}</p>
+          <h3>Kaviarne v okolí ☕</h3>
+          <p>Poloha úspešne získaná.</p>
+          <a href="${googleMapsUrl}" target="_blankogle Maps
+          </a>
         </div>
       `;
 
@@ -58,8 +62,7 @@ function najdiKavu() {
       vysledkyDiv.innerHTML = `
         <div class="kaviaren-box">
           <h3>GPS chyba ❌</h3>
-          <p>Kód: ${error.code}</p>
-          <p>Správa: ${error.message}</p>
+          <p>${error.message}</p>
         </div>
       `;
 

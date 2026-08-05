@@ -83,6 +83,8 @@ select{
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
+    <option value="bakery">🥐 Pekáreň</option>
+    <option value="bicycle">🚴 Cykloshop / Servis</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -133,6 +135,15 @@ function sleep(ms){
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function nazovTypu(typ){
+    if (typ === "fuel") return "⛽ Benzínka";
+    if (typ === "drinking_water") return "🚰 Pitná voda";
+    if (typ === "supermarket") return "🛒 Potraviny";
+    if (typ === "bakery") return "🥐 Pekáreň";
+    if (typ === "bicycle") return "🚴 Cykloshop / Servis";
+    return "☕ Kaviareň";
+}
+
 async function hladaj(){
 
     const vysledky = document.getElementById("vysledky");
@@ -143,6 +154,8 @@ async function hladaj(){
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
+    if (typ === "bakery") radius = 10000;
+    if (typ === "bicycle") radius = 15000;
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -159,11 +172,6 @@ async function hladaj(){
 
             try{
 
-                let amenity = "cafe";
-
-                if (typ === "fuel") amenity = "fuel";
-                if (typ === "drinking_water") amenity = "drinking_water";
-
                 let query = "";
 
                 if (typ === "supermarket") {
@@ -171,19 +179,48 @@ async function hladaj(){
                     query = `
 [out:json];
 (
-  node["shop"="supermarket"](around:${radius},${lat},${lon});
-  way["shop"="supermarket"](around:${radius},${lat},${lon});
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
+);
+out center;
+`;
+
+                } else if (typ === "bakery") {
+
+                    query = `
+[out:json];
+(
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
+);
+out center;
+`;
+
+                } else if (typ === "bicycle") {
+
+                    query = `
+[out:json];
+(
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
 
                 } else {
 
+                    let amenity = "cafe";
+
+                    if (typ === "fuel") amenity = "fuel";
+                    if (typ === "drinking_water") amenity = "drinking_water";
+
                     query = `
 [out:json];
 (
-  node["amenity"="${amenity}"](around:${radius},${lat},${lon});
-  way["amenity"="${amenity}"](around:${radius},${lat},${lon});
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
@@ -245,14 +282,7 @@ out center;
                     return {
 
                         name:
-                            item.tags?.name ||
-                            (typ === "fuel"
-                                ? "⛽ Benzínka"
-                                : typ === "drinking_water"
-                                ? "🚰 Pitná voda"
-                                : typ === "supermarket"
-                                ? "🛒 Potraviny"
-                                : "☕ Kaviareň"),
+                            item.tags?.name || nazovTypu(typ),
 
                         lat: itemLat,
                         lon: itemLon,

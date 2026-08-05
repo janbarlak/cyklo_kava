@@ -83,6 +83,8 @@ select{
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
+    <option value="bakery">🥐 Pekáreň</option>
+    <option value="bicycle">🚴 Cykloshop / Servis</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -143,6 +145,8 @@ async function hladaj(){
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
+    if (typ === "bakery") radius = 10000;
+    if (typ === "bicycle") radius = 15000;
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -166,18 +170,40 @@ async function hladaj(){
 
                 let query = "";
 
-                if (typ === "supermarket") {
+ if (typ === "supermarket") {
 
-                    query = `
+    query = `
 [out:json];
 (
-  node["shop"="supermarket"](around:${radius},${lat},${lon});
-  way["shop"="supermarket"](around:${radius},${lat},${lon});
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
 
-                } else {
+} else if (typ === "bakery") {
+
+    query = `
+[out:json];
+(
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
+);
+out center;
+`;
+
+} else if (typ === "bicycle") {
+
+    query = `
+[out:json];
+(
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
+);
+out center;
+`;
+
+} else {
 
                     query = `
 [out:json];
@@ -244,15 +270,19 @@ out center;
 
                     return {
 
-                        name:
-                            item.tags?.name ||
-                            (typ === "fuel"
-                                ? "⛽ Benzínka"
-                                : typ === "drinking_water"
-                                ? "🚰 Pitná voda"
-                                : typ === "supermarket"
-                                ? "🛒 Potraviny"
-                                : "☕ Kaviareň"),
+          name:
+    item.tags?.name ||
+    (typ === "fuel"
+        ? "⛽ Benzínka"
+        : typ === "drinking_water"
+        ? "🚰 Pitná voda"
+        : typ === "supermarket"
+        ? "🛒 Potraviny"
+        : typ === "bakery"
+        ? "🥐 Pekáreň"
+        : typ === "bicycle"
+        ? "🚴 Cykloshop / Servis"
+        : "☕ Kaviareň"),
 
                         lat: itemLat,
                         lon: itemLon,

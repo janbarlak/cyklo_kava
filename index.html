@@ -83,8 +83,6 @@ select{
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
-    <option value="bakery">🥐 Pekáreň</option>
-    <option value="bicycle">🚴 Cykloshop / Servis</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -145,8 +143,6 @@ async function hladaj(){
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
-    if (typ === "bakery") radius = 10000;
-    if (typ === "bicycle") radius = 15000;
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -163,6 +159,11 @@ async function hladaj(){
 
             try{
 
+                let amenity = "cafe";
+
+                if (typ === "fuel") amenity = "fuel";
+                if (typ === "drinking_water") amenity = "drinking_water";
+
                 let query = "";
 
                 if (typ === "supermarket") {
@@ -170,48 +171,23 @@ async function hladaj(){
                     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
-);
-out center;
-`;
-
-                } else if (typ === "bakery") {
-
-                    query = `
-[out:json];
-(
-  nodearound:${radius},${lat},${lon};
-  way["shop"="bakery"](around:${on};
-);
-out center;
-`;
-
-                } else if (typ === "bicycle") {
-
-                    query = `
-[out:json];
-(
-  nodearound:${radius},${lat},${lon};
-  way["shop"="bicycle,${lat},${lon};
+  node["shop"="supermarket"](around:${radius},${lat},${lon});
+  way["shop"="supermarket"](around:${radius},${lat},${lon});
 );
 out center;
 `;
 
                 } else {
 
-                    let amenity = "cafe";
-
-                    if (typ === "fuel") amenity = "fuel";
-                    if (typ === "drinking_water") amenity = "drinking_water";
-
                     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  way["amenity"="${amenity}"](around:${
+  node["amenity"="${amenity}"](around:${radius},${lat},${lon});
+  way["amenity"="${amenity}"](around:${radius},${lat},${lon});
+);
 out center;
 `;
+
                 }
 
                 let response;
@@ -276,10 +252,6 @@ out center;
                                 ? "🚰 Pitná voda"
                                 : typ === "supermarket"
                                 ? "🛒 Potraviny"
-                                : typ === "bakery"
-                                ? "🥐 Pekáreň"
-                                : typ === "bicycle"
-                                ? "🚴 Cykloshop / Servis"
                                 : "☕ Kaviareň"),
 
                         lat: itemLat,

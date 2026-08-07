@@ -170,36 +170,35 @@ async function hladaj(){
 
                 let query = "";
 
-if (typ === "supermarket") {
+ if (typ === "supermarket") {
 
     query = `
 [out:json];
 (
-  node["shop"="supermarket"](around:${radius"shop"="supermarketat},${lon};
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
 
-} else {
+} else if (typ === "bakery") {
 
     query = `
 [out:json];
 (
-  node["amenity"="${amenity}},${lon};
-  way["amen:${radius},${lat},${lon};
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
-
-}
 
 } else if (typ === "bicycle") {
 
     query = `
 [out:json];
 (
-  node["shop"="bicycle"](around{lon};
-  way["shop"="radius},${lat},${lon};
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;

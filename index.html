@@ -177,15 +177,13 @@ async function hladaj(){
 
                 let query = "";
 
-                if (shop !== "") {
+         if (shop !== "") {
 
     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
-);
-out center;
+  node["ound:${radius},${lat},${lon};
+  way["shop"="${shop}"](around:${radius}out center;
 `;
 
 } else {

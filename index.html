@@ -175,18 +175,23 @@ if (typ === "supermarket") {
     query = `
 [out:json];
 (
-  node["shop"="supermarket"](around:${radius"shop"="supermarket"](around:${radius center;
+  node["shop"="supermarket"](around:${radius"shop"="supermarketat},${lon};
+);
+out center;
 `;
 
-} else if (typ === "bakery") {
+} else {
 
     query = `
 [out:json];
 (
-  node["shop"="bakery"](around:${radius},ay["shop"="bakery"](around${lon};
+  node["amenity"="${amenity}},${lon};
+  way["amen:${radius},${lat},${lon};
 );
 out center;
 `;
+
+}
 
 } else if (typ === "bicycle") {
 

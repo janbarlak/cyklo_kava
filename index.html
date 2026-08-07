@@ -186,8 +186,7 @@ out center;
     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
+  node["shop"="bakery"](around:${radius},${lat},d:${radius},${lat},${lon};
 );
 out center;
 `;

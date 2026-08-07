@@ -84,6 +84,7 @@ select{
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
     <option value="bakery">🥐 Pekáreň</option>
+    <option value="bicycle">🚴 Cykloshop / Servis</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -145,6 +146,7 @@ async function hladaj(){
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
     if (typ === "bakery") radius = 10000;
+    if (typ === "bicycle") radius = 15000;
     
 
     vysledky.innerHTML =
@@ -186,6 +188,16 @@ out center;
 (
   node["shop"="bakery"](around:${radius},${lat},${lon});
   way["shop"="bakery"](around:${radius},${lat},${lon});
+);
+out center;
+`;
+} else if (typ === "bicycle") {
+
+    query = `
+[out:json];
+(
+  node["shop"="bicycle"](around:${radius},${lat},${lon});
+  way["shop"="bicycle"](around:${radius},${lat},${lon});
 );
 out center;
 `;
@@ -266,6 +278,8 @@ out center;
                                 ? "🛒 Potraviny"
                                 : typ === "bakery"
                                 ? "🥐 Pekáreň"
+                             : typ === "bicycle"
+                             ? "🚴 Cykloshop / Servis"
                                 : "☕ Kaviareň"),
 
                         lat: itemLat,

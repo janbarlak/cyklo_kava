@@ -170,15 +170,12 @@ async function hladaj(){
 
                 let query = "";
 
- if (typ === "supermarket") {
+if (typ === "supermarket") {
 
     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
-);
-out center;
+  node["shop"="supermarket"](around:${radius"shop"="supermarket"](around:${radius center;
 `;
 
 } else if (typ === "bakery") {
@@ -186,8 +183,7 @@ out center;
     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
+  node["shop"="bakery"](around:${radius},ay["shop"="bakery"](around${lon};
 );
 out center;
 `;
@@ -197,8 +193,8 @@ out center;
     query = `
 [out:json];
 (
-  nodearound:${radius},${lat},${lon};
-  wayaround:${radius},${lat},${lon};
+  node["shop"="bicycle"](around{lon};
+  way["shop"="radius},${lat},${lon};
 );
 out center;
 `;

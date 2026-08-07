@@ -83,7 +83,10 @@ select{
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
+    <option value="bakery">🥐 Pekáreň</option>
+    <option value="bicycle">🚴 Cykloshop / Servis</option>
 </select>
+
 
 <button class="btn" onclick="hladaj()">
     Vyhľadať v okolí
@@ -143,6 +146,8 @@ async function hladaj(){
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
+    if (typ === "bakery") radius = 10000;
+    if (typ === "bicycle") radius = 15000;
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -163,21 +168,27 @@ async function hladaj(){
 
                 if (typ === "fuel") amenity = "fuel";
                 if (typ === "drinking_water") amenity = "drinking_water";
+                
+                let shop = "";
+
+                if (typ === "supermarket") shop = "supermarket";
+                if (typ === "bakery") shop = "bakery";
+                if (typ === "bicycle") shop = "bicycle";
 
                 let query = "";
 
-                if (typ === "supermarket") {
+                if (shop !== "") {
 
-                    query = `
+    query = `
 [out:json];
 (
-  node["shop"="supermarket"](around:${radius},${lat},${lon});
-  way["shop"="supermarket"](around:${radius},${lat},${lon});
+  nodearound:${radius},${lat},${lon};
+  wayaround:${radius},${lat},${lon};
 );
 out center;
 `;
 
-                } else {
+} else {
 
                     query = `
 [out:json];

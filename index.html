@@ -83,6 +83,7 @@ select{
     <option value="fuel">⛽ Benzínka</option>
     <option value="drinking_water">🚰 Pitná voda</option>
     <option value="supermarket">🛒 Potraviny</option>
+    <option value="bakery">🥐 Pekáreň</option>
 </select>
 
 <button class="btn" onclick="hladaj()">
@@ -143,6 +144,8 @@ async function hladaj(){
     if (typ === "fuel") radius = 20000;
     if (typ === "drinking_water") radius = 10000;
     if (typ === "supermarket") radius = 10000;
+    if (typ === "bakery") radius = 10000;
+    
 
     vysledky.innerHTML =
         "<div class='kaviaren-box'>📍 Zisťujem polohu...</div>";
@@ -176,7 +179,16 @@ async function hladaj(){
 );
 out center;
 `;
+} else if (typ === "bakery") {
 
+    query = `
+[out:json];
+(
+  node["shop"="bakius},${lat},${lon};
+  way["ound:${radius},${lat},${lon};
+);
+out center;
+`;
                 } else {
 
                     query = `
@@ -252,6 +264,8 @@ out center;
                                 ? "🚰 Pitná voda"
                                 : typ === "supermarket"
                                 ? "🛒 Potraviny"
+                                : typ === "bakery"
+                                ? "🥐 Pekáreň"
                                 : "☕ Kaviareň"),
 
                         lat: itemLat,

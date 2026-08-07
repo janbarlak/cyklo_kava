@@ -184,7 +184,9 @@ out center;
     query = `
 [out:json];
 (
-  node["shop"="bakery"](around:${radius},ay["shop"="bakery"](around:${radius;
+  node["shop"="bakery"](around:${radius},${lat},${lon});
+  way["shop"="bakery"](around:${radius},${lat},${lon});
+);
 out center;
 `;
                 } else {
